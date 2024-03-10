@@ -27,17 +27,18 @@ class RepairMan(models.Model):
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return str(self.title)
 
     class Meta:
         ordering = ['title']
+        verbose_name_plural = 'Categories'  # It's not Categorys :lol:
 
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return str(self.name)
@@ -78,16 +79,25 @@ class ServiceRequest(models.Model):
     assigned_to = models.ManyToManyField(
         to=RepairMan, related_name='service_requests')
 
+    def __str__(self):
+        return f"Service Request ID #{self.pk}"
+
 
 class ServiceRequestItem(models.Model):
     name = models.CharField(max_length=255)
     serial_number = models.CharField(max_length=255)
     condition = models.CharField(max_length=255)
-    quantity = models.IntegerField()
-    notes = models.CharField(max_length=255)
+    quantity = models.IntegerField(
+        default=1, validators=[MinValueValidator(0)])
+    notes = models.CharField(max_length=255, null=True, blank=True)
     manufacturer = models.ForeignKey(
         to=Manufacturer, on_delete=models.PROTECT, null=True)
     category = models.ForeignKey(
         to=Category, on_delete=models.PROTECT, null=True)
     service_request = models.ForeignKey(
         ServiceRequest, on_delete=models.PROTECT, related_name='items')
+
+    def __str__(self):
+        if self.manufacturer:
+            return f"{self.name} Manufactured by {self.manufacturer} in {self.service_request}"
+        return f"{self.name} in {self.service_request}"
