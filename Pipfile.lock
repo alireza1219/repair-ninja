@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "75d16baceca5f0107c9a2f7a4aaad98e1e45a539e6d4abdc23a87d06a5537503"
+            "sha256": "4ef3887fa81685e14f1b7cf682357d7beb42ba1992e2ce9b2838ea6044be0d2c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -33,6 +33,33 @@
             "markers": "python_version >= '3.10'",
             "version": "==5.0.3"
         },
+        "django-debug-toolbar": {
+            "hashes": [
+                "sha256:0b0dddee5ea29b9cb678593bc0d7a6d76b21d7799cb68e091a2148341a80f3c4",
+                "sha256:e09b7dcb8417b743234dfc57c95a7c1d1d87a88844abd13b4c5387f807b31bf6"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==4.3.0"
+        },
+        "djangorestframework": {
+            "hashes": [
+                "sha256:579a333e6256b09489cbe0a067e66abe55c6595d8926be6b99423786334350c8",
+                "sha256:eb63f58c9f218e1a7d064d17a70751f528ed4e1d35547fdade9aaf4cd103fd08"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==3.14.0"
+        },
+        "drf-nested-routers": {
+            "hashes": [
+                "sha256:1407565abc7bada37c162c7e11bf214ae71625a17fdec6d9a47a17f4a3627d32",
+                "sha256:9a6813554020134a02e62f8c2934b2047717f7da06f8b801752c521e43735c63"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.93.5"
+        },
         "mysqlclient": {
             "hashes": [
                 "sha256:329e4eec086a2336fe3541f1ce095d87a6f169d1cc8ba7b04ac68bcb234c9711",
@@ -48,6 +75,13 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==2.2.4"
+        },
+        "pytz": {
+            "hashes": [
+                "sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812",
+                "sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"
+            ],
+            "version": "==2024.1"
         },
         "sqlparse": {
             "hashes": [

@@ -6,7 +6,8 @@ from django.db.models.aggregates import Count
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
-from repair_core import models
+from . import models
+from .utils import priority as get_priority
 
 
 @admin.register(models.Customer)
@@ -98,17 +99,4 @@ class ServiceRequestAdmin(admin.ModelAdmin):
 
     @admin.display(ordering='service_priority')
     def priority(self, service_request: models.ServiceRequest):
-        PRIORITY_DICT = {
-            0: 'Highest',
-            1: 'Very High',
-            2: 'High',
-            3: 'Above Average',
-            4: 'Average',
-            5: 'Below Average',
-            6: 'Low',
-            7: 'Very Low',
-            8: 'Lowest',
-            9: 'Extremely Low',
-            10: 'Not Specified'
-        }
-        return PRIORITY_DICT[service_request.service_priority]
+        return get_priority(service_request.service_priority)
