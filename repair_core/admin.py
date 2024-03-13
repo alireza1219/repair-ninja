@@ -42,7 +42,9 @@ class CustomerAdmin(admin.ModelAdmin):
 @admin.register(models.RepairMan)
 class RepairManAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name', 'service_assignees']
+    list_select_related = ['user']
     search_fields = ['first_name__istartswith', 'last_name__istartswith']
+    autocomplete_fields = ['user']
 
     @admin.display(ordering='assignee_count')
     def service_assignees(self, repair_man: models.RepairMan):
