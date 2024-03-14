@@ -28,9 +28,6 @@ class RepairMan(models.Model):
     def last_name(self):
         return self.user.last_name
 
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name}"
-
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
 
@@ -90,6 +87,9 @@ class ServiceRequest(models.Model):
 
     def __str__(self):
         return f"Service Request ID #{self.pk}"
+
+    class Meta:
+        ordering = ['id']
 
 
 class ServiceRequestItem(models.Model):
