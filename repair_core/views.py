@@ -1,5 +1,5 @@
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from .models import Category, Customer, Manufacturer, RepairMan, ServiceRequest, ServiceRequestItem
+from .models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
 from . import serializers
 from . import api_exceptions
 
@@ -26,38 +26,38 @@ class ManufacturerViewSet(ModelViewSet):
     serializer_class = serializers.ManufacturerSerializer
 
 
-class ServiceRequestViewSet(ModelViewSet):
+class ServiceViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
-        queryset = ServiceRequest.objects.select_related('customer').all()
+        queryset = Service.objects.select_related('customer').all()
 
         if self.action == 'retrieve':
             queryset = queryset.prefetch_related('assigned_to__user')
 
-        # FIXME: Extra queries when updating/creating a service request.
+        # FIXME: Extra queries when updating/creating a service.
 
         return queryset
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
-            return serializers.RetrieveServiceRequestSerializer
+            return serializers.RetrieveServiceSerializer
         if self.request.method == 'POST':
-            return serializers.AddServiceRequestSerializer
+            return serializers.CreateServiceSerializer
         if self.request.method == 'PATCH':
-            return serializers.UpdateServiceRequestSerializer
-        return serializers.ListServiceRequestSerializer
+            return serializers.UpdateServiceSerializer
+        return serializers.ListServiceSerializer
 
 
-class ServiceRequestItemViewSet(ModelViewSet):
+class ServiceItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.AddServiceRequestItemSerializer
+            return serializers.AddServiceItemSerializer
         if self.request.method == 'PATCH':
-            return serializers.UpdateServiceRequestItemSerializer
-        return serializers.ServiceRequestItemSerializer
+            return serializers.UpdateServiceItemSerializer
+        return serializers.ServiceItemSerializer
 
     def get_serializer_context(self):
         return {'service_id': self.kwargs['service_pk']}
@@ -68,18 +68,18 @@ class ServiceRequestItemViewSet(ModelViewSet):
         except ValueError as e:
             raise api_exceptions.InvalidRequestException(str(e))
 
-        # If the parent resource (here: ServiceRequest object) does not exists,
+        # If the parent resource (here: Service object) does not exists,
         # Instead of getting a 404 HTTP response, it'll return an empty list with a 200 HTTP response.
         # Turns out to be an issue with the drf nested routers:
         # https://github.com/alanjds/drf-nested-routers/issues/216
         # My workaround however, led to two extra sql queries. So I'm not going to use it for now!
-        # service_object = get_object_or_404(ServiceRequest, pk=service_id)
+        # service_object = get_object_or_404(Service, pk=service_id)
         # queryset = service_object.items.all() \
         #     .select_related('manufacturer') \
         #     .select_related('category')
 
-        queryset = ServiceRequestItem.objects \
-            .filter(service_request_id=service_id) \
+        queryset = ServiceItem.objects \
+            .filter(service_id=service_id) \
             .select_related('manufacturer') \
             .select_related('category')
 

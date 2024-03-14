@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from repair_core.models import Category, Customer, Manufacturer, RepairMan, ServiceRequest, ServiceRequestItem
+from repair_core.models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -45,62 +45,62 @@ class ManufacturerSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class ListServiceRequestSerializer(serializers.ModelSerializer):
+class ListServiceSerializer(serializers.ModelSerializer):
     customer = SimpleCustomerSerializer()
 
     class Meta:
-        model = ServiceRequest
+        model = Service
         fields = ['id', 'placed_at', 'service_status',
-                  'customer', 'service_priority']
+                  'customer', 'priority']
 
 
-class RetrieveServiceRequestSerializer(serializers.ModelSerializer):
+class RetrieveServiceSerializer(serializers.ModelSerializer):
     assigned_to = RepairManSerializer(many=True)
     customer = CustomerSerializer()
 
     class Meta:
-        model = ServiceRequest
+        model = Service
         fields = '__all__'
 
 
-class AddServiceRequestSerializer(serializers.ModelSerializer):
+class CreateServiceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ServiceRequest
-        fields = ['service_status', 'service_priority', 'description',
+        model = Service
+        fields = ['service_status', 'priority', 'description',
                   'estimation_delivery', 'customer', 'assigned_to']
 
 
-class UpdateServiceRequestSerializer(serializers.ModelSerializer):
+class UpdateServiceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ServiceRequest
-        fields = ['service_status', 'service_priority',
+        model = Service
+        fields = ['service_status', 'priority',
                   'description', 'estimation_delivery', 'assigned_to']
 
 
-class ServiceRequestItemSerializer(serializers.ModelSerializer):
+class ServiceItemSerializer(serializers.ModelSerializer):
     manufacturer = ManufacturerSerializer()
     category = CategorySerializer()
 
     class Meta:
-        model = ServiceRequestItem
+        model = ServiceItem
         fields = ['id', 'name', 'serial_number', 'condition',
                   'quantity', 'notes', 'manufacturer', 'category']
 
 
-class AddServiceRequestItemSerializer(serializers.ModelSerializer):
+class AddServiceItemSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         service_id = self.context['service_id']
-        self.instance = ServiceRequestItem.objects.create(
-            service_request_id=service_id, **self.validated_data)
+        self.instance = ServiceItem.objects.create(
+            service_id=service_id, **self.validated_data)
         return self.instance
 
     class Meta:
-        model = ServiceRequestItem
+        model = ServiceItem
         fields = ['name', 'serial_number', 'condition',
                   'quantity', 'notes', 'manufacturer', 'category']
 
 
-class UpdateServiceRequestItemSerializer(serializers.ModelSerializer):
+class UpdateServiceItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ServiceRequestItem
+        model = ServiceItem
         fields = ['quantity', 'notes']

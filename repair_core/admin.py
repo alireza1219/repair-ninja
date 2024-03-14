@@ -13,30 +13,30 @@ from .utils import priority as get_priority
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name',
-                    'email', 'phone', 'service_requests']
+                    'email', 'phone', 'services']
     list_per_page = 10
     search_fields = ['first_name__istartswith', 'last_name__istartswith']
 
-    @admin.display(ordering='service_requests')
-    def service_requests(self, customer: models.Customer):
-        service_request_page_url = reverse(
-            'admin:repair_core_servicerequest_changelist')
+    @admin.display(ordering='services')
+    def services(self, customer: models.Customer):
+        service_page_url = reverse(
+            'admin:repair_core_service_changelist')
 
         url = (
-            service_request_page_url
+            service_page_url
             + '?'
             + urlencode({
                 'customer__id': str(customer.pk)
             })
         )
 
-        count = customer.service_requests
+        count = customer.service_count
 
-        return format_html('<a href="{}">{} Service Request(s)</a>', url, count)
+        return format_html('<a href="{}">{} Service(s)</a>', url, count)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
-            service_requests=Count('servicerequest')
+            service_count=Count('service')
         )
 
 
@@ -47,26 +47,26 @@ class RepairManAdmin(admin.ModelAdmin):
     search_fields = ['first_name__istartswith', 'last_name__istartswith']
     autocomplete_fields = ['user']
 
-    @admin.display(ordering='assignee_count')
+    @admin.display(ordering='assignment_count')
     def service_assignees(self, repair_man: models.RepairMan):
-        service_request_page_url = reverse(
-            'admin:repair_core_servicerequest_changelist')
+        service_page_url = reverse(
+            'admin:repair_core_service_changelist')
 
         url = (
-            service_request_page_url
+            service_page_url
             + '?'
             + urlencode({
                 'assigned_to__id': str(repair_man.pk)
             })
         )
 
-        count = repair_man.assignee_count
+        count = repair_man.assignment_count
 
         return format_html('<a href="{}">{} Service Assignee(s)</a>', url, count)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
-            assignee_count=Count('service_requests')
+            assignment_count=Count('assignments')
         )
 
 
@@ -82,21 +82,21 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['title']
 
 
-class ServiceRequestItemInline(admin.StackedInline):
-    model = models.ServiceRequestItem
+class ServiceItemInline(admin.StackedInline):
+    model = models.ServiceItem
     max_num = 10
     min_num = 1
     extra = 0
     autocomplete_fields = ['manufacturer', 'category']
 
 
-@admin.register(models.ServiceRequest)
-class ServiceRequestAdmin(admin.ModelAdmin):
+@admin.register(models.Service)
+class ServiceAdmin(admin.ModelAdmin):
     list_display = ['id', 'placed_at', 'service_status',
                     'customer', 'priority']
     autocomplete_fields = ['customer', 'assigned_to']
-    inlines = [ServiceRequestItemInline]
+    inlines = [ServiceItemInline]
 
-    @admin.display(ordering='service_priority')
-    def priority(self, service_request: models.ServiceRequest):
-        return get_priority(service_request.service_priority)
+    @admin.display(ordering='priority')
+    def priority(self, service: models.Service):
+        return get_priority(service.priority)

@@ -16,10 +16,10 @@ router.register('categories', views.CategoryViewSet)
 router.register('manufacturers', views.ManufacturerViewSet)
 
 # The /services API endpoint
-router.register('services', views.ServiceRequestViewSet, basename='services')
+router.register('services', views.ServiceViewSet, basename='services')
 
 # The /services/{service_pk}/items nested API endpoint
 services_router = routers.NestedDefaultRouter(router, 'services', lookup='service')
-services_router.register('items', views.ServiceRequestItemViewSet, basename='service-items')
+services_router.register('items', views.ServiceItemViewSet, basename='service-items')
 
 urlpatterns = router.urls + services_router.urls
