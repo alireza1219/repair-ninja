@@ -26,11 +26,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class RepairManSerializer(serializers.ModelSerializer):
-    user = UserProfileSerializer()
+    details = UserProfileSerializer(source='user')
 
     class Meta:
         model = RepairMan
-        fields = ['id', 'user']
+        fields = ['user_id', 'details']
 
 
 class CategorySerializer(serializers.ModelSerializer):

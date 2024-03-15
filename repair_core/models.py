@@ -18,7 +18,7 @@ class Customer(models.Model):
 
 
 class RepairMan(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
 
     @admin.display(ordering='user__first_name')
     def first_name(self):
@@ -81,9 +81,9 @@ class Service(models.Model):
     )
     description = models.TextField(null=True, blank=True)
     estimation_delivery = models.DateField()
-    customer = models.ForeignKey(to=Customer, on_delete=models.PROTECT)
+    customer = models.ForeignKey(to=Customer, on_delete=models.PROTECT, related_name='services')
     assigned_to = models.ManyToManyField(
-        to=RepairMan, related_name='assignments')
+        to=RepairMan, related_name='assignments', blank=True)
 
     def __str__(self):
         return f"Service ID #{self.pk}"

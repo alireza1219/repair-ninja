@@ -35,7 +35,13 @@ class ServiceViewSet(ModelViewSet):
         if self.action == 'retrieve':
             queryset = queryset.prefetch_related('assigned_to__user')
 
-        # FIXME: Extra queries when updating/creating a service.
+        # About the extra queries when updating/creating a service:
+        # It happens when assigning a service to multiple repairmen.
+        # The DRF tries to validate all the given IDs where each validation is -
+        # relevant to an extra select query on the RepairMan database table.
+        # Once everything is validated, it'll execute another extra query to -
+        # update service assignees.
+        # The job gets done by calling the .set() method on a query set.
 
         return queryset
 
