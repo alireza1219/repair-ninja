@@ -9,6 +9,7 @@ mysqlclient = "*"
 djangorestframework = "*"
 drf-nested-routers = "*"
 django-debug-toolbar = "*"
+django-silk = "*"
 
 [dev-packages]
 

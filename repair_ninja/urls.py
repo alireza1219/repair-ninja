@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('core/', include('repair_core.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
+    path('silk/', include('silk.urls', namespace='silk')),
 ]
