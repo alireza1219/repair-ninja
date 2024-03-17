@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'silk',
     'debug_toolbar',
     'rest_framework',
+    'otp',
     'repair_core',
 ]
 

@@ -25,6 +25,7 @@ urlpatterns = [
     # Authentication patterns:
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    path('otp/', include('otp.urls')),
 
     # Debugging patterns:
     path('__debug__/', include('debug_toolbar.urls')),
