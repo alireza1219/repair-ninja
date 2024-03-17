@@ -4,8 +4,10 @@ from . import serializers
 from . import api_exceptions
 
 
-class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.all()
+class CustomerViewSet(ReadOnlyModelViewSet):
+    queryset = Customer.objects.select_related('user') \
+        .order_by('pk') \
+        .all()
     serializer_class = serializers.CustomerSerializer
 
 
@@ -30,7 +32,7 @@ class ServiceViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
-        queryset = Service.objects.select_related('customer').all()
+        queryset = Service.objects.select_related('customer__user').all()
 
         if self.action == 'retrieve':
             queryset = queryset.prefetch_related('assigned_to__user')

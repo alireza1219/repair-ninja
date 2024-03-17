@@ -3,26 +3,18 @@ from rest_framework import serializers
 from repair_core.models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
 
 
-class CustomerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Customer
-        fields = ['id', 'first_name', 'last_name', 'phone', 'email']
-
-
-class SimpleCustomerSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(read_only=True)
-    last_name = serializers.CharField(read_only=True)
-    id = serializers.IntegerField()
-
-    class Meta:
-        model = Customer
-        fields = ['id', 'first_name', 'last_name']
-
-
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['username', 'email', 'first_name', 'last_name']
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    details = UserProfileSerializer(source='user')
+
+    class Meta:
+        model = Customer
+        fields = ['user_id', 'phone', 'details']
 
 
 class RepairManSerializer(serializers.ModelSerializer):
@@ -30,7 +22,7 @@ class RepairManSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RepairMan
-        fields = ['user_id', 'details']
+        fields = ['user_id', 'phone', 'details']
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -46,7 +38,7 @@ class ManufacturerSerializer(serializers.ModelSerializer):
 
 
 class ListServiceSerializer(serializers.ModelSerializer):
-    customer = SimpleCustomerSerializer()
+    customer = CustomerSerializer()
 
     class Meta:
         model = Service
