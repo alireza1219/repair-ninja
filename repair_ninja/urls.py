@@ -18,8 +18,15 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
+    # Main Patterns
     path('admin/', admin.site.urls),
     path('core/', include('repair_core.urls')),
+
+    # Authentication patterns:
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
+
+    # Debugging patterns:
     path('__debug__/', include('debug_toolbar.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
 ]
