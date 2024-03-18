@@ -81,6 +81,17 @@ class ServiceViewSet(ModelViewSet):
             return serializers.UpdateServiceSerializer
         return serializers.ListServiceSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        if ServiceItem.objects.filter(service_id=kwargs['pk']).count() > 0:
+            return Response(
+                {
+                    'error': 'This service is associated with one or more items and it cannot be deleted.'
+                },
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+
+        return super().destroy(request, *args, **kwargs)
+
 
 class ServiceItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
