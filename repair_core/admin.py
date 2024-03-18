@@ -12,12 +12,26 @@ from .utils import priority as get_priority
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name',
-                    'email', 'phone', 'services']
-    list_select_related = ['user']
-    list_per_page = 10
-    search_fields = ['first_name__istartswith', 'last_name__istartswith']
     autocomplete_fields = ['user']
+
+    list_display = ['id', 'user_profile', 'first_name', 'last_name',
+                    'email', 'phone', 'services']
+
+    list_per_page = 10
+
+    list_select_related = ['user']
+
+    search_fields = ['user__first_name__istartswith',
+                     'user__last_name__istartswith']
+
+    @admin.display(ordering='user__username', description='user profile')
+    def user_profile(self, customer: models.Customer):
+        user_admin_url = reverse(
+            'admin:auth_user_change',
+            args=[customer.user.id]
+        )
+
+        return format_html('<a href="{}">{}</a>', user_admin_url, customer.user.username)
 
     @admin.display(ordering='services')
     def services(self, customer: models.Customer):
@@ -28,8 +42,7 @@ class CustomerAdmin(admin.ModelAdmin):
             service_page_url
             + '?'
             + urlencode({
-                'user_type': 'customer',
-                'customer': str(customer.pk)
+                'customer__id': str(customer.pk),
             })
         )
 
@@ -45,10 +58,26 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(models.RepairMan)
 class RepairManAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'service_assignments']
-    list_select_related = ['user']
-    search_fields = ['first_name__istartswith', 'last_name__istartswith']
     autocomplete_fields = ['user']
+
+    list_display = ['id', 'user_profile', 'first_name', 'last_name',
+                    'email', 'phone', 'service_assignments']
+
+    list_per_page = 10
+
+    list_select_related = ['user']
+
+    search_fields = ['user__first_name__istartswith',
+                     'user__last_name__istartswith']
+
+    @admin.display(ordering='user__username')
+    def user_profile(self, repairman: models.RepairMan):
+        user_admin_url = reverse(
+            'admin:auth_user_change',
+            args=[repairman.user.id]
+        )
+
+        return format_html('<a href="{}">{}</a>', user_admin_url, repairman.user.username)
 
     @admin.display(ordering='assignment_count')
     def service_assignments(self, repair_man: models.RepairMan):
@@ -59,8 +88,7 @@ class RepairManAdmin(admin.ModelAdmin):
             service_page_url
             + '?'
             + urlencode({
-                'user_type': 'repairman',
-                'assigned_to': str(repair_man.pk)
+                'assigned_to': str(repair_man.pk),
             })
         )
 
@@ -77,12 +105,14 @@ class RepairManAdmin(admin.ModelAdmin):
 @admin.register(models.Manufacturer)
 class ManufacturerAdmin(admin.ModelAdmin):
     list_display = ['name']
+    list_per_page = 20
     search_fields = ['name']
 
 
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['title']
+    list_per_page = 20
     search_fields = ['title']
 
 
@@ -94,41 +124,23 @@ class ServiceItemInline(admin.StackedInline):
     autocomplete_fields = ['manufacturer', 'category']
 
 
-class UserTypeFilter(admin.SimpleListFilter):
-    title = 'User Type'
-    parameter_name = 'user_type'
-
-    def lookups(self, request, model_admin):
-        return (
-            ('customer', 'Customer'),
-            ('repairman', 'Repair Man'),
-        )
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        user_id = request.GET.get('user_id')
-
-        if value == 'customer':
-            customers = models.Customer.objects.values_list('user', flat=True)
-            if user_id:
-                customers = customers.filter(user_id=user_id)
-            return queryset.filter(customer__in=customers)
-        if value == 'repairman':
-            repairmen = models.RepairMan.objects.values_list('user', flat=True)
-            if user_id:
-                repairmen = repairmen.filter(user_id=user_id)
-            return queryset.filter(assigned_to__in=repairmen)
-        return queryset
-
-
 @admin.register(models.Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ['id', 'placed_at', 'service_status',
-                    'customer', 'priority']
     autocomplete_fields = ['customer', 'assigned_to']
-    list_filter = [UserTypeFilter, 'assigned_to', 'customer']  # FIXME Later...
+
     inlines = [ServiceItemInline]
 
+    list_display = ['id', 'customer', 'placed_at',
+                    'service_status', 'service_priority']
+
+    list_per_page = 20
+
+    ordering = ['-placed_at']
+
+    # Here's an interesting finding for later read:
+    # https://github.com/django/django/commit/85207a245b
+    # https://stackoverflow.com/questions/6441084/django-filtering-by-filter-not-allowed
+
     @admin.display(ordering='priority')
-    def priority(self, service: models.Service):
+    def service_priority(self, service: models.Service):
         return get_priority(service.priority)

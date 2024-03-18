@@ -1,17 +1,42 @@
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework import mixins
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
 from . import serializers
 from . import api_exceptions
 
 
-class CustomerViewSet(ReadOnlyModelViewSet):
+class CustomerViewSet(
+        mixins.RetrieveModelMixin,
+        mixins.ListModelMixin,
+        mixins.CreateModelMixin,
+        mixins.DestroyModelMixin,
+        GenericViewSet):
     queryset = Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
     serializer_class = serializers.CustomerSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        # Check if there's an association between a service and this customer object.
+        if Service.objects.filter(customer_id=kwargs['pk']).count() > 0:
+            return Response(
+                {
+                    'error': 'This customer is associated with one or more services and it cannot be deleted.'
+                },
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
 
-class RepairManViewSet(ReadOnlyModelViewSet):
+        return super().destroy(request, *args, **kwargs)
+
+
+class RepairManViewSet(
+        mixins.RetrieveModelMixin,
+        mixins.ListModelMixin,
+        mixins.CreateModelMixin,
+        mixins.DestroyModelMixin,
+        GenericViewSet):
     queryset = RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()

@@ -3,26 +3,75 @@ from rest_framework import serializers
 from repair_core.models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
 
 
+User = get_user_model()
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
-        fields = ['username', 'email', 'first_name', 'last_name']
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    details = UserProfileSerializer(source='user')
+    user_id = serializers.IntegerField()
+    user_profile = UserProfileSerializer(source='user', read_only=True)
+
+    def validate_user_id(self, user_id: int):
+        """
+        Validate the posted user_id value.
+        """
+        # First, check for a User object with the given ID.
+        if not User.objects.filter(id=user_id).exists():
+            raise serializers.ValidationError(
+                'a user with this id does not exists.')
+
+        # Second, check for a current customer with the given ID.
+        if Customer.objects.filter(user_id=user_id).exists():
+            raise serializers.ValidationError(
+                'customer with this user already exists.')
+
+        # Then, double check for a RepairMan object with the given ID.
+        if RepairMan.objects.filter(user_id=user_id).exists():
+            raise serializers.ValidationError(
+                'a user cannot be both a customer and a repairman.')
+
+        # Validation completed! Return the value.
+        return user_id
 
     class Meta:
         model = Customer
-        fields = ['user_id', 'phone', 'details']
+        fields = ['id', 'user_id', 'user_profile', 'phone']
 
 
 class RepairManSerializer(serializers.ModelSerializer):
-    details = UserProfileSerializer(source='user')
+    user_id = serializers.IntegerField()
+    user_profile = UserProfileSerializer(source='user', read_only=True)
+
+    def validate_user_id(self, user_id: int):
+        """
+        Validate the posted user_id value.
+        """
+        # First, check for a User object with the given ID.
+        if not User.objects.filter(id=user_id).exists():
+            raise serializers.ValidationError(
+                'a user with this id does not exists.')
+
+        # Second, check for a current repairman with the given ID.
+        if RepairMan.objects.filter(user_id=user_id).exists():
+            raise serializers.ValidationError(
+                'repair man with this user already exists.')
+
+        # Then, double check for a Customer object with the given ID.
+        if Customer.objects.filter(user_id=user_id).exists():
+            raise serializers.ValidationError(
+                'a user cannot be both a customer and a repairman.')
+
+        # Validation completed! Return the value.
+        return user_id
 
     class Meta:
         model = RepairMan
-        fields = ['user_id', 'phone', 'details']
+        fields = ['id', 'user_id', 'user_profile', 'phone']
 
 
 class CategorySerializer(serializers.ModelSerializer):

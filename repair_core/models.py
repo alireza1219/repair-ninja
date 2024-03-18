@@ -2,12 +2,23 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib import admin
+from django.forms import ValidationError
 
 
 class Customer(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
-    phone = models.CharField(max_length=255)
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=255, unique=True)
+
+    def clean(self):
+        if RepairMan.objects.filter(user=self.user).exists():
+            raise ValidationError({
+                'user': 'A user cannot be both a customer and a repairman.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     @admin.display(ordering='user__first_name')
     def first_name(self):
@@ -29,8 +40,18 @@ class Customer(models.Model):
 
 class RepairMan(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
-    phone = models.CharField(max_length=255)
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=255, unique=True)
+
+    def clean(self):
+        if Customer.objects.filter(user=self.user).exists():
+            raise ValidationError({
+                'user': 'A user cannot be both a customer and a repairman.'
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     @admin.display(ordering='user__first_name')
     def first_name(self):
@@ -39,6 +60,9 @@ class RepairMan(models.Model):
     @admin.display(ordering='user__list_name')
     def last_name(self):
         return self.user.last_name
+
+    def email(self):
+        return self.user.email
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name}"
