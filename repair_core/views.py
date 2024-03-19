@@ -1,10 +1,8 @@
-from rest_framework import mixins
-from rest_framework import status
+from rest_framework import mixins, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from .models import Category, Customer, Manufacturer, RepairMan, Service, ServiceItem
-from . import serializers
-from . import api_exceptions
+
+from . import api_exceptions, models, serializers
 
 
 class CustomerViewSet(
@@ -13,14 +11,14 @@ class CustomerViewSet(
         mixins.CreateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
-    queryset = Customer.objects.select_related('user') \
+    queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
     serializer_class = serializers.CustomerSerializer
 
     def destroy(self, request, *args, **kwargs):
         # Check if there's an association between a service and this customer object.
-        if Service.objects.filter(customer_id=kwargs['pk']).count() > 0:
+        if models.Service.objects.filter(customer_id=kwargs['pk']).count() > 0:
             return Response(
                 {
                     'error': 'This customer is associated with one or more services and it cannot be deleted.'
@@ -37,19 +35,19 @@ class RepairManViewSet(
         mixins.CreateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
-    queryset = RepairMan.objects.select_related('user') \
+    queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()
     serializer_class = serializers.RepairManSerializer
 
 
 class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
 
 class ManufacturerViewSet(ModelViewSet):
-    queryset = Manufacturer.objects.all()
+    queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
 
@@ -57,7 +55,8 @@ class ServiceViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
-        queryset = Service.objects.select_related('customer__user').all()
+        queryset = models.Service.objects.select_related(
+            'customer__user').all()
 
         if self.action == 'retrieve':
             queryset = queryset.prefetch_related('assigned_to__user')
@@ -82,7 +81,7 @@ class ServiceViewSet(ModelViewSet):
         return serializers.ListServiceSerializer
 
     def destroy(self, request, *args, **kwargs):
-        if ServiceItem.objects.filter(service_id=kwargs['pk']).count() > 0:
+        if models.ServiceItem.objects.filter(service_id=kwargs['pk']).count() > 0:
             return Response(
                 {
                     'error': 'This service is associated with one or more items and it cannot be deleted.'
@@ -122,7 +121,7 @@ class ServiceItemViewSet(ModelViewSet):
         #     .select_related('manufacturer') \
         #     .select_related('category')
 
-        queryset = ServiceItem.objects \
+        queryset = models.ServiceItem.objects \
             .filter(service_id=service_id) \
             .select_related('manufacturer') \
             .select_related('category')
