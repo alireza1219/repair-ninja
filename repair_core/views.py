@@ -1,4 +1,4 @@
-from rest_framework import mixins, status
+from rest_framework import mixins, permissions, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
@@ -11,6 +11,13 @@ class CustomerViewSet(
         mixins.CreateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
+    """
+    An API endpoint for managing customers.
+    """
+    # A little note about the DjangoModelPermissions to keep in mind:
+    # https://github.com/encode/django-rest-framework/pull/8009/files
+    # A TL;DR: DRF < 3.15 allows anyone to perform GET request when using this permission model.
+    permission_classes = [permissions.DjangoModelPermissions]
     queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
@@ -35,6 +42,10 @@ class RepairManViewSet(
         mixins.CreateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
+    """
+    An API endpoint for managing repairmen.
+    """
+    permission_classes = [permissions.DjangoModelPermissions]
     queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()
@@ -42,19 +53,51 @@ class RepairManViewSet(
 
 
 class CategoryViewSet(ModelViewSet):
+    """
+    An API endpoint for managing categories.
+    """
+    permission_classes = [permissions.DjangoModelPermissions]
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
 
 class ManufacturerViewSet(ModelViewSet):
+    """
+    An API endpoint for managing manufacturers.
+    """
+    permission_classes = [permissions.DjangoModelPermissions]
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
 
 class ServiceViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    """
+    An API endpoint for managing services.
+    """
+    http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+            return [permissions.DjangoModelPermissions()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
+        # Only process the customer's services.
+        if not self.request.user.is_staff:
+            # The authenticated user's id.
+            user_id = self.request.user.id
+
+            try:
+                # The customer profile associated with this user.
+                customer_id = models.Customer.objects.only('id') \
+                    .get(user_id=user_id)
+            except models.Customer.DoesNotExist:
+                # TODO: Logging, Maybe?
+                return models.Service.objects.none()
+
+            queryset = models.Service.objects.filter(customer_id=customer_id)
+            return queryset
+
         queryset = models.Service.objects.select_related(
             'customer__user').all()
 
@@ -72,6 +115,11 @@ class ServiceViewSet(ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
+        # A customer has its own service serializer.
+        if not self.request.user.is_staff:
+            return serializers.BasicServiceSerializer
+
+        # The serializers below were defined for the staff members.
         if self.action == 'retrieve':
             return serializers.RetrieveServiceSerializer
         if self.request.method == 'POST':
@@ -93,7 +141,12 @@ class ServiceViewSet(ModelViewSet):
 
 
 class ServiceItemViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    """
+    An API endpoint for managing service items.
+    """
+    http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
+    # TODO: Customer access.
+    permission_classes = [permissions.DjangoModelPermissions]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

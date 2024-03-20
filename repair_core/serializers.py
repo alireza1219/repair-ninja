@@ -86,6 +86,17 @@ class ManufacturerSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class BasicServiceSerializer(serializers.ModelSerializer):
+    """
+    This is a basic version of Service model serializer
+    which is mainly used with the customers.
+    """
+    class Meta:
+        model = Service
+        fields = ['id', 'service_status', 'placed_at',
+                  'last_update', 'description', 'estimation_delivery']
+
+
 class ListServiceSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
 

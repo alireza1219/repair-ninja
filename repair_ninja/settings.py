@@ -157,4 +157,13 @@ DJOSER = {
         'user_create': 'repair_ninja.serializers.UserCreateSerializer',
         'current_user': 'repair_ninja.serializers.UserSerializer',
     },
+    'PERMISSIONS': {
+        # Overriding the set_password permission class is not really necessary.
+        'set_password': ['repair_core.permissions.CurrentUserOrSuperUser'],
+        'username_reset': ['repair_core.permissions.IsSuperUser'],
+        'username_reset_confirm': ['repair_core.permissions.IsSuperUser'],
+        'set_username': ['repair_core.permissions.IsSuperUser'],
+        'user_create': ['rest_framework.permissions.IsAdminUser'],
+        'user_delete': ['repair_core.permissions.IsSuperUser'],
+    },
 }
