@@ -116,9 +116,11 @@ class RetrieveServiceSerializer(serializers.ModelSerializer):
 
 
 class CreateServiceSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Service
-        fields = ['service_status', 'priority', 'description',
+        fields = ['id', 'service_status', 'priority', 'description',
                   'estimation_delivery', 'customer', 'assigned_to']
 
 
