@@ -190,7 +190,7 @@ class RepairManTestCase(TestCase):
         # Try to create a new User instance using the API endpoint.
         data = {
             'username': 'lorem',
-            'password': 'ipsum',
+            'password': 'AwEsOmE12_PassW@rd19',
             'email': 'awesome@user.local',
             'first_name': '12',
             'last_name': '19'
