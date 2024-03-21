@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      tmate_debug_enabled:
+        type: boolean
+        description: "Run the workflow with tmate debugging enabled "
+        required: false
+        default: false
 
 jobs:
   test:
@@ -51,7 +57,7 @@ jobs:
       # Cache pipenv virtual environments to speed up workflow execution.
       - name: Cache the Virtual Environments
         id: cache-pipenv
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           # Specify the directory path to cache, which contains pipenv virtual environments.
           path: ~/.local/share/virtualenvs
@@ -75,3 +81,7 @@ jobs:
           DB_PORT: 3306
           DB_USER: root
           DB_PASSWORD: ${{ secrets.MYSQL_CI_TEST_ROOT_PASSWORD }}
+
+      - name: Setup tmate Session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.tmate_debug_enabled) || failure() }}
