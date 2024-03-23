@@ -9,7 +9,7 @@ on:
     inputs:
       tmate_debug_enabled:
         type: boolean
-        description: "Run the workflow with tmate debugging enabled "
+        description: "Run this workflow with tmate debugging enabled"
         required: false
         default: false
 
@@ -73,7 +73,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          pipenv run python manage.py test
+          pipenv run pytest -v -s
         env:
           DB_ENGINE: django.db.backends.mysql
           DB_NAME: ${{ secrets.MYSQL_CI_TEST_DATABASE_NAME }}
