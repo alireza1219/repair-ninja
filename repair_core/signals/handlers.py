@@ -4,39 +4,10 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from repair_core.models import RepairMan
+from repair_core.permissions import REPAIRMAN_DEFAULT_PERMISSIONS
 
 
 User = get_user_model()
-
-
-REPAIRMAN_DEFAULT_PERMISSIONS = [
-    # Customer model:
-    'add_customer',
-    'view_customer',
-
-    # RepairMan model:
-    'view_repairman',
-
-    # Category model:
-    'add_category',
-    'view_category',
-
-    # Manufacturer model:
-    'add_manufacturer',
-    'view_manufacturer',
-
-    # Service model:
-    'add_service',
-    'change_service',
-    'delete_service',
-    'view_service',
-
-    # ServiceItem model:
-    'add_serviceitem',
-    'change_serviceitem',
-    'delete_serviceitem',
-    'view_serviceitem',
-]
 
 
 @receiver(post_save, sender=RepairMan)

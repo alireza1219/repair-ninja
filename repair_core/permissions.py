@@ -1,8 +1,28 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated, DjangoModelPermissions
 
-
-# Here's a resource for you:
-# https://stackoverflow.com/questions/43064417/whats-the-differences-between-has-object-permission-and-has-permission
+REPAIRMAN_DEFAULT_PERMISSIONS = [
+    # Customer model:
+    'add_customer',
+    'view_customer',
+    # RepairMan model:
+    'view_repairman',
+    # Category model:
+    'add_category',
+    'view_category',
+    # Manufacturer model:
+    'add_manufacturer',
+    'view_manufacturer',
+    # Service model:
+    'add_service',
+    'change_service',
+    'delete_service',
+    'view_service',
+    # ServiceItem model:
+    'add_serviceitem',
+    'change_serviceitem',
+    'delete_serviceitem',
+    'view_serviceitem',
+]
 
 
 class IsSuperUser(BasePermission):
@@ -16,6 +36,8 @@ class CurrentUserOrSuperUser(IsAuthenticated):
     """Grant access to superusers or currently authenticated user."""
 
     def has_object_permission(self, request, view, obj):
+        # Here's a resource for you:
+        # https://stackoverflow.com/questions/43064417/whats-the-differences-between-has-object-permission-and-has-permission
         user = request.user
         return user.is_superuser or obj.pk == user.pk
 

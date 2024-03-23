@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission
 from rest_framework import status
 
 from repair_core.models import RepairMan
-from repair_core.signals import handlers
+from repair_core.permissions import REPAIRMAN_DEFAULT_PERMISSIONS
 
 
 User = get_user_model()
@@ -15,7 +15,7 @@ User = get_user_model()
 def fixture_get_permissions():
     """A list of permissions strings to use with .has_perms() method."""
     perm_queryset = Permission.objects.filter(
-        codename__in=handlers.REPAIRMAN_DEFAULT_PERMISSIONS
+        codename__in=REPAIRMAN_DEFAULT_PERMISSIONS
     )
 
     permissions = [
@@ -61,7 +61,7 @@ def fixture_create_repairman(api_client):
 
 @pytest.fixture(name='retrieve_repairman')
 def fixture_retrieve_repairman(api_client):
-    """Retrieves a specific repairman using /core/repairmen/{repairman_id}/ endpoint"""
+    """Retrieve a specific repairman using /core/repairmen/{repairman_id}/ endpoint."""
     def _retrieve_repairman(repairman_id: int):
         return api_client.get(f"/core/repairmen/{repairman_id}/")
     return _retrieve_repairman
@@ -69,7 +69,7 @@ def fixture_retrieve_repairman(api_client):
 
 @pytest.fixture(name='delete_repairman')
 def fixture_delete_repairman(api_client):
-    """Performs a HTTP DELETE request on /core/repairmen/{repairman_id}/ endpoint"""
+    """Perform HTTP DELETE request on /core/repairmen/{repairman_id}/ endpoint."""
     def _delete_repairman(repairman_id: int):
         return api_client.delete(f"/core/repairmen/{repairman_id}/")
     return _delete_repairman
@@ -127,7 +127,7 @@ class TestListRepairMen:
         """Test if staff user GET HTTP request returns a 200 status"""
         authenticate(
             is_staff=True,
-            permissions=handlers.REPAIRMAN_DEFAULT_PERMISSIONS
+            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
         )
         response = get_repairmen_list()
 
@@ -172,7 +172,7 @@ class TestRetrieveRepairMan:
         """Test if staff user retrieve returns a 200 status"""
         authenticate(
             is_staff=True,
-            permissions=handlers.REPAIRMAN_DEFAULT_PERMISSIONS
+            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
         )
         repairman = create_repairman_instance()
 
@@ -228,7 +228,7 @@ class TestDeleteRepairMan:
         """Test if staff user delete returns a 403 status"""
         authenticate(
             is_staff=True,
-            permissions=handlers.REPAIRMAN_DEFAULT_PERMISSIONS
+            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
         )
         repairman = create_repairman_instance()
 
@@ -286,7 +286,7 @@ class TestCreateRepairMan:
         """Test if staff user create returns a 403 status"""
         authenticate(
             is_staff=True,
-            permissions=handlers.REPAIRMAN_DEFAULT_PERMISSIONS
+            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
         )
         user = create_user_instance
         data = {

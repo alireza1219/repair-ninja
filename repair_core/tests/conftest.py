@@ -14,17 +14,14 @@ def fixture_api_client():
     return APIClient()
 
 
-# @pytest.fixture(name='authenticate')
-# def fixture_authenticate(api_client):
-#     """Set is_staff to True for an authenticated user"""
-#     def do_authenticate(is_staff=False):
-#         api_client.force_authenticate(user=User(is_staff=is_staff))
-#     return do_authenticate
-
-
 @pytest.fixture(name='authenticate')
 def fixture_authenticate(api_client):
-    """Set is_staff to True for an authenticated user"""
+    """
+    Keyword Arguments:
+    set `is_staff` to True for an authenticated staff user.
+    set `is_superuser` to True for an authenticated superuser.
+    set `permissions` to a list of permission codenames.
+    """
     def do_authenticate(is_staff=False, is_superuser=False, permissions=None):
         user = User.objects.create(
             is_staff=is_staff,
