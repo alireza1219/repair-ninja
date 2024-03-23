@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from . import api_exceptions, models, serializers
+from .permissions import DjangoModelFullPermissions
 
 
 class CustomerViewSet(
@@ -14,10 +15,7 @@ class CustomerViewSet(
     """
     An API endpoint for managing customers.
     """
-    # A little note about the DjangoModelPermissions to keep in mind:
-    # https://github.com/encode/django-rest-framework/pull/8009/files
-    # A TL;DR: DRF < 3.15 allows anyone to perform GET request when using this permission model.
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [DjangoModelFullPermissions]
     queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
@@ -45,7 +43,7 @@ class RepairManViewSet(
     """
     An API endpoint for managing repairmen.
     """
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [DjangoModelFullPermissions]
     queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()
@@ -56,7 +54,7 @@ class CategoryViewSet(ModelViewSet):
     """
     An API endpoint for managing categories.
     """
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [DjangoModelFullPermissions]
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
@@ -65,7 +63,7 @@ class ManufacturerViewSet(ModelViewSet):
     """
     An API endpoint for managing manufacturers.
     """
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [DjangoModelFullPermissions]
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
@@ -78,7 +76,7 @@ class ServiceViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:
-            return [permissions.DjangoModelPermissions()]
+            return [DjangoModelFullPermissions()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
@@ -146,7 +144,7 @@ class ServiceItemViewSet(ModelViewSet):
     """
     http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
     # TODO: Customer access.
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [DjangoModelFullPermissions]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
