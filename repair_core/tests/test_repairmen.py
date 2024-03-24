@@ -184,6 +184,19 @@ class TestRetrieveRepairMan:
             {'id': repairman.id, 'phone': repairman.phone}, \
             'Assert that both database and response information about a repairman are equal'
 
+    def test_if_staff_user_invalid_retrieve_returns_404(self,
+                                                        authenticate, retrieve_repairman):
+        """Test if staff user invalid retrieve returns a 404 status"""
+        authenticate(
+            is_staff=True,
+            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
+        )
+
+        response = retrieve_repairman(repairman_id=1)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, \
+            'Assert that a staff user cannot retrieve an invalid repairman'
+
     def test_if_superuser_retrieve_returns_200(self, create_repairman_instance,
                                                authenticate, retrieve_repairman):
         """Test if superuser retrieve returns a 200 status"""
@@ -197,6 +210,16 @@ class TestRetrieveRepairMan:
         assert {'id': response.data['id'], 'phone': response.data['phone']} == \
             {'id': repairman.id, 'phone': repairman.phone}, \
             'Assert that both database and response information about a repairman are equal'
+
+    def test_if_superuser_invalid_retrieve_returns_404(self,
+                                                       authenticate, retrieve_repairman):
+        """Test if superuser invalid retrieve returns a 404 status"""
+        authenticate(is_superuser=True)
+
+        response = retrieve_repairman(repairman_id=1)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, \
+            'Assert that a superuser cannot retrieve an invalid repairman'
 
 
 @pytest.mark.django_db
@@ -315,3 +338,16 @@ class TestCreateRepairMan:
             'Assert that a superuser can create a new repairman using the API'
         assert response.data['id'] > 0, 'Assert that the repairman id is present in response body'
         assert response.data['phone'] == data['phone']
+
+    def test_if_superuser_create_using_invalid_data_returns_400(self,
+                                                                authenticate, create_repairman):
+        """Test if superuser create using invalid data returns 400 status"""
+        authenticate(is_superuser=True)
+        data = {
+            'user_id': 1
+        }
+
+        response = create_repairman(data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, \
+            'Assert that a superuser cannot create a new repairman using invalid data'
