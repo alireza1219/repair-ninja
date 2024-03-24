@@ -23,12 +23,7 @@ class CreateUserOTPSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=user_email)
             otp = otp_utils.generate_otp(user)
-
-            # TODO: Actually implement this and sent an email with otp.
-            # For now just print it in the terminal.
-
-            print(f"Here is your otp: {otp}")
-
+            otp_utils.send_otp_email(instance=user, otp=otp)
             return True
         except User.DoesNotExist:
             return False
