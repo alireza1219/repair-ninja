@@ -8,14 +8,14 @@ django = "*"
 mysqlclient = "*"
 djangorestframework = "*"
 drf-nested-routers = "*"
-django-debug-toolbar = "*"
-django-silk = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-django = "*"
+django-debug-toolbar = "*"
+django-silk = "*"
 
 [requires]
 python_version = "3.12"

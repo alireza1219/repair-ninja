@@ -75,12 +75,13 @@ jobs:
         run: |
           pipenv run pytest -v -s
         env:
-          DB_ENGINE: django.db.backends.mysql
-          DB_NAME: ${{ secrets.MYSQL_CI_TEST_DATABASE_NAME }}
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_USER: root
-          DB_PASSWORD: ${{ secrets.MYSQL_CI_TEST_ROOT_PASSWORD }}
+          REPAIR_NINJA_MODE: DEV
+          REPAIR_NINJA_DB_ENGINE: django.db.backends.mysql
+          REPAIR_NINJA_DB_NAME: ${{ secrets.MYSQL_CI_TEST_DATABASE_NAME }}
+          REPAIR_NINJA_DB_HOST: 127.0.0.1
+          REPAIR_NINJA_DB_PORT: 3306
+          REPAIR_NINJA_DB_USER: root
+          REPAIR_NINJA_DB_PASSWORD: ${{ secrets.MYSQL_CI_TEST_ROOT_PASSWORD }}
 
       - name: Setup tmate Session
         uses: mxschmitt/action-tmate@v3
