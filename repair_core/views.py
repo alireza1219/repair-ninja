@@ -2,7 +2,7 @@ from rest_framework import mixins, permissions, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from . import api_exceptions, models, serializers
+from . import api_exceptions, models, serializers, pagination
 from .permissions import DjangoModelFullPermissions
 
 
@@ -15,6 +15,7 @@ class CustomerViewSet(
     """
     An API endpoint for managing customers.
     """
+    pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
@@ -43,6 +44,7 @@ class RepairManViewSet(
     """
     An API endpoint for managing repairmen.
     """
+    pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
@@ -54,6 +56,7 @@ class CategoryViewSet(ModelViewSet):
     """
     An API endpoint for managing categories.
     """
+    pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
@@ -63,6 +66,7 @@ class ManufacturerViewSet(ModelViewSet):
     """
     An API endpoint for managing manufacturers.
     """
+    pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
@@ -73,6 +77,7 @@ class ServiceViewSet(ModelViewSet):
     An API endpoint for managing services.
     """
     http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
+    pagination_class = pagination.DefaultPagination
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:
@@ -144,6 +149,7 @@ class ServiceItemViewSet(ModelViewSet):
     """
     http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
     # TODO: Customer access.
+    pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
 
     def get_serializer_class(self):
