@@ -10,6 +10,7 @@ djangorestframework = "*"
 drf-nested-routers = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"

@@ -1,0 +1,50 @@
+services:
+  dev-api:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - REPAIR_NINJA_MODE=DEV
+      - REPAIR_NINJA_DISABLE_DRF_INPUTS=0
+      - REPAIR_NINJA_DB_ENGINE=django.db.backends.mysql
+      - REPAIR_NINJA_DB_HOST=dev-db
+      - REPAIR_NINJA_DB_PORT=3306
+      - REPAIR_NINJA_DB_NAME=repair_ninja_dev
+      - REPAIR_NINJA_DB_USER=root
+      - REPAIR_NINJA_DB_PASSWORD=root
+    depends_on:
+      dev-db:
+        condition: service_healthy
+
+  dev-db:
+    image: mysql:8.3.0
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - dev-mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=repair_ninja_dev
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "dev-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - "5000:80"
+      - "25:25"
+
+volumes:
+  dev-mysql-data:

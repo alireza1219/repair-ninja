@@ -43,3 +43,7 @@ SIMPLE_JWT.update(
         'ACCESS_TOKEN_LIFETIME': timedelta(days=31),
     }
 )
+
+# Set the related environment variable to 'localhost'
+# if you're not running the project using docker compose.
+EMAIL_HOST = os.environ.get('REPAIR_NINJA_EMAIL_HOST', 'smtp4dev')

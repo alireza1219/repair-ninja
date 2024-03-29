@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - static-data:/vol/web
+    environment:
+      - REPAIR_NINJA_MODE=PROD
+      - REPAIR_NINJA_DB_ENGINE=django.db.backends.mysql
+      - REPAIR_NINJA_DB_HOST=db
+      - REPAIR_NINJA_DB_PORT=3306
+      - REPAIR_NINJA_DB_NAME=${DB_NAME}
+      - REPAIR_NINJA_DB_USER=${DB_USER}
+      - REPAIR_NINJA_DB_PASSWORD=${DB_PASSWORD}
+      - REPAIR_NINJA_DJANGO_SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.3.0
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
+  static-data:

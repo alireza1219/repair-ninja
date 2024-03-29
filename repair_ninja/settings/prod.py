@@ -10,6 +10,8 @@ from repair_ninja.settings.base import REST_FRAMEWORK
 
 SECRET_KEY = os.environ.get('REPAIR_NINJA_DJANGO_SECRET_KEY')
 
+STATIC_ROOT = '/vol/web/static'
+
 DEBUG = False
 
 ALLOWED_HOSTS = ['.alireza1219.ir']
