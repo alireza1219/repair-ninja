@@ -28,7 +28,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-if os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS') == '1':
+if bool(int(os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS', 0))):
     REST_FRAMEWORK.update(
         {
             'DEFAULT_RENDERER_CLASSES': (
