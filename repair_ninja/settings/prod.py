@@ -16,6 +16,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['.alireza1219.ir']
 
+CSRF_TRUSTED_ORIGINS = ['https://*.alireza1219.ir']
+
 REST_FRAMEWORK.update(
     {
         'DEFAULT_RENDERER_CLASSES': (

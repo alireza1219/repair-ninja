@@ -3,8 +3,6 @@ services:
     build:
       context: .
     restart: always
-    ports:
-      - "8000:8000"
     volumes:
       - static-data:/vol/web
     environment:
@@ -36,6 +34,37 @@ services:
       timeout: 5s
       retries: 5
 
+  proxy:
+    build:
+      context: ./docker/proxy
+    restart: always
+    depends_on:
+      - api
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - static-data:/vol/web
+      - proxy-dhparams-data:/vol/proxy
+      - certbot-certs-data:/etc/letsencrypt
+    environment:
+      - DOMAIN=${DOMAIN}
+
+  certbot:
+    build:
+      context: ./docker/certbot
+    command: echo "Run certbot manually..."
+    environment:
+      - EMAIL=${ACME_DEFAULT_EMAIL}
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - static-data:/vol/web
+      - certbot-certs-data:/etc/letsencrypt
+    depends_on:
+      - proxy
+
 volumes:
   mysql-data:
   static-data:
+  proxy-dhparams-data:
+  certbot-certs-data:
