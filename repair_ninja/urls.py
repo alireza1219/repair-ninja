@@ -19,8 +19,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
+from . import views
+
 urlpatterns = [
     # Main Patterns
+    path('', views.home_page_view),
     path('admin/', admin.site.urls),
     path('core/', include('repair_core.urls')),
 
