@@ -1,4 +1,4 @@
-name: Django Continuous Integration
+name: Django CI/CD
 
 on:
   push:
@@ -86,3 +86,25 @@ jobs:
       - name: Setup tmate Session
         uses: mxschmitt/action-tmate@v3
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.tmate_debug_enabled) || failure() }}
+
+  # This simple deployment action is suitable for a basic deployment to a single remote server.
+  # It is not appropriate for more complex deployment scenarios.
+  deployment:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Production Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            cd ${{ secrets.REMOTE_GIT_PATH }}
+            git pull origin
+            docker compose -f docker-compose-prod.yaml down
+            docker compose -f docker-compose-prod.yaml build
+            docker image prune --force
+            docker compose -f docker-compose-prod.yaml up -d
