@@ -26,7 +26,7 @@ REST_FRAMEWORK.update(
     }
 )
 
-if bool(int(os.environ.get('REPAIR_NINJA_SMTP'), 0)):
+if bool(int(os.environ.get('REPAIR_NINJA_SMTP', 0))):
     EMAIL_HOST = os.environ.get('REPAIR_NINJA_EMAIL_HOST')
     EMAIL_PORT = os.environ.get('REPAIR_NINJA_EMAIL_PORT')
     EMAIL_USE_TLS = bool(int(os.environ.get('REPAIR_NINJA_EMAIL_USE_TLS', 1)))
