@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'otp',
     'repair_core',
+    'sms_message',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,8 @@ DJOSER = {
         'user_delete': ['repair_core.permissions.IsSuperUser'],
     },
 }
+
+# SMS.ir settings
+SMS_ENABLED = bool(int(os.environ.get('REPAIR_NINJA_SMS_ENABLED', 0)))
+SMS_API_KEY = os.environ.get('REPAIR_NINJA_SMS_API_KEY')
+SMS_LINE_NUMBER = os.environ.get('REPAIR_NINJA_SMS_LINE_NUMBER', 0)
