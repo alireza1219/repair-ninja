@@ -16,16 +16,24 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS += [
     'silk',
+    'corsheaders',
     'debug_toolbar',
 ]
 
 MIDDLEWARE += [
     'silk.middleware.SilkyMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 INTERNAL_IPS = [
     '127.0.0.1',
+]
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173'
 ]
 
 if bool(int(os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS', 0))):

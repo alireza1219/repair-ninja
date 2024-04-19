@@ -17,6 +17,7 @@ pytest = "*"
 pytest-django = "*"
 django-debug-toolbar = "*"
 django-silk = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.12"
