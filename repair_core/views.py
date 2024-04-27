@@ -1,9 +1,58 @@
+from django.db.models import Count
+from django.http import HttpRequest
 from rest_framework import mixins, permissions, status
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet, ViewSet
 
 from . import api_exceptions, models, serializers, pagination
 from .permissions import DjangoModelFullPermissions
+
+
+class ServiceStatisticsViewSet(ViewSet):
+    """
+    Providing an overview of service metrics for the client dashboard.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request: HttpRequest, format=None) -> Response:
+        """
+        Process the get request.
+        """
+        queryset = models.Service.objects.none()
+
+        if request.user.is_staff:
+            # Get all service objects.
+            queryset = models.Service.objects.all() \
+                .only('service_status')
+        else:
+            user_id = request.user.id
+            try:
+                customer_id = models.Customer.objects \
+                    .only('id').get(user_id=user_id)
+            except models.Customer.DoesNotExist:
+                return Response(
+                    data={
+                        'errors': [
+                            {
+                                'code': '404_not_found',
+                                'detail': 'There is no customer associated with this user ID.',
+                            }
+                        ]
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            # Filter all the service objects that belongs the this customer.
+            queryset = models.Service.objects.filter(customer_id=customer_id) \
+                .only('service_status')
+
+        count_queryset = queryset.values('service_status')\
+            .annotate(status_count=Count('service_status'))
+        data = {entry['service_status']: entry['status_count']
+                for entry in count_queryset}
+        return Response(
+            data=data,
+            status=status.HTTP_200_OK
+        )
 
 
 class CustomerViewSet(
