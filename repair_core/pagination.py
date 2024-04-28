@@ -7,3 +7,6 @@ class DefaultPagination(PageNumberPagination):
     It comes with the page_size attribute defined by default.
     """
     page_size = 10
+    # https://www.django-rest-framework.org/api-guide/pagination/#modifying-the-pagination-style
+    page_size_query_param = 'page_size'
+    max_page_size = 50
