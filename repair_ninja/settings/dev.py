@@ -41,10 +41,15 @@ if bool(int(os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS', 0))):
         {
             'DEFAULT_RENDERER_CLASSES': (
                 'rest_framework.renderers.JSONRenderer',
-                'repair_ninja.utils.BrowsableAPIRendererWithoutForms',  # Disable DRF's HTML Inputs
+                'repair_ninja.utils.BrowsableAPIRendererWithoutForms',  # Disable DRF's HTML Inputs.
             ),
         }
     )
+
+# Fix Django Debug Toolbar not appearing when using Docker Compose.
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
+}
 
 SIMPLE_JWT.update(
     {
@@ -52,6 +57,6 @@ SIMPLE_JWT.update(
     }
 )
 
-# Set the related environment variable to 'localhost'
-# if you're not running the project using docker compose.
+# Set the `REPAIR_NINJA_EMAIL_HOST` environment variable to `localhost`
+# if you are not running the project using Docker Compose.
 EMAIL_HOST = os.environ.get('REPAIR_NINJA_EMAIL_HOST', 'smtp4dev')
