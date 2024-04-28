@@ -46,11 +46,6 @@ if bool(int(os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS', 0))):
         }
     )
 
-# Fix Django Debug Toolbar not appearing when using Docker Compose.
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
-}
-
 SIMPLE_JWT.update(
     {
         'ACCESS_TOKEN_LIFETIME': timedelta(days=31),
