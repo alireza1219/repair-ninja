@@ -1,5 +1,7 @@
 from django.db.models import Count
 from django.http import HttpRequest
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import mixins, permissions, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet, ViewSet
@@ -64,12 +66,15 @@ class CustomerViewSet(
     """
     An API endpoint for managing customers.
     """
+    filter_backends = [SearchFilter]
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
     serializer_class = serializers.CustomerSerializer
+    search_fields = ['user__first_name',
+                     'user__last_name', 'user__username', 'user__email', 'phone']
 
     def destroy(self, request, *args, **kwargs):
         # Check if there's an association between a service and this customer object.
@@ -93,40 +98,52 @@ class RepairManViewSet(
     """
     An API endpoint for managing repairmen.
     """
+    filter_backends = [SearchFilter]
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()
     serializer_class = serializers.RepairManSerializer
+    search_fields = ['user__first_name',
+                     'user__last_name', 'user__username', 'user__email', 'phone']
 
 
 class CategoryViewSet(ModelViewSet):
     """
     An API endpoint for managing categories.
     """
+    filter_backends = [SearchFilter]
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
+    search_fields = ['title']
 
 
 class ManufacturerViewSet(ModelViewSet):
     """
     An API endpoint for managing manufacturers.
     """
+    filter_backends = [SearchFilter]
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
+    search_fields = ['name']
 
 
 class ServiceViewSet(ModelViewSet):
     """
     An API endpoint for managing services.
     """
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    # TODO: Priority less than, greater than filtering.
+    # The front-end is not capable of this at the moment. So, I'm going to ignore it for now.
+    filterset_fields = ['customer_id', 'priority', 'service_status']
     http_method_names = ['get', 'head', 'options', 'post', 'patch', 'delete']
     pagination_class = pagination.DefaultPagination
+    ordering_fields = ['id', 'priority', 'last_update', 'placed_at']
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:

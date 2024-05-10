@@ -11,6 +11,7 @@ drf-nested-routers = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
 gunicorn = "*"
+django-filter = "*"
 
 [dev-packages]
 pytest = "*"
