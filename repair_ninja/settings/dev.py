@@ -33,7 +33,8 @@ INTERNAL_IPS = [
 CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'https://restfox.dev',
 ]
 
 if bool(int(os.environ.get('REPAIR_NINJA_DISABLE_DRF_INPUTS', 0))):
