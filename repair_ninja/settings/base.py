@@ -137,9 +137,16 @@ SIMPLE_JWT = {
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'repair_ninja.serializers.UserCreateSerializer',
-        'current_user': 'repair_ninja.serializers.UserSerializer',
+        'user': 'repair_ninja.serializers.UserSerializer',
+        'current_user': 'repair_ninja.serializers.UserProfileSerializer',
     },
     'PERMISSIONS': {
+        # The current system doesn't allow everyone to signup.
+        # There's no front-end available for the password reset at the moment.
+        # It's best to restrict public access to these three actions for now:
+        "activation": ["repair_core.permissions.IsSuperUser"],
+        "password_reset": ["repair_core.permissions.IsSuperUser"],
+        "password_reset_confirm": ["repair_core.permissions.IsSuperUser"],
         # Overriding the set_password permission class is not really necessary.
         'set_password': ['repair_core.permissions.CurrentUserOrSuperUser'],
         'username_reset': ['repair_core.permissions.IsSuperUser'],
