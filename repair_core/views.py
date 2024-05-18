@@ -61,38 +61,50 @@ class CustomerViewSet(
         mixins.RetrieveModelMixin,
         mixins.ListModelMixin,
         mixins.CreateModelMixin,
+        mixins.UpdateModelMixin,
         GenericViewSet):
     """
     An API endpoint for managing customers.
     """
     filter_backends = [SearchFilter]
+    http_method_names = ['get', 'head', 'options', 'post', 'patch']
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.Customer.objects.select_related('user') \
         .order_by('pk') \
         .all()
-    serializer_class = serializers.CustomerSerializer
     search_fields = ['user__first_name',
                      'user__last_name', 'user__username', 'user__email', 'phone']
+    
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return serializers.CustomerUpdateSerializer
+        return serializers.CustomerSerializer
 
 
 class RepairManViewSet(
         mixins.RetrieveModelMixin,
         mixins.ListModelMixin,
         mixins.CreateModelMixin,
+        mixins.UpdateModelMixin,
         GenericViewSet):
     """
     An API endpoint for managing repairmen.
     """
     filter_backends = [SearchFilter]
+    http_method_names = ['get', 'head', 'options', 'post', 'patch']
     pagination_class = pagination.DefaultPagination
     permission_classes = [DjangoModelFullPermissions]
     queryset = models.RepairMan.objects.select_related('user') \
         .order_by('pk') \
         .all()
-    serializer_class = serializers.RepairManSerializer
     search_fields = ['user__first_name',
                      'user__last_name', 'user__username', 'user__email', 'phone']
+    
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return serializers.RepairManUpdateSerializer
+        return serializers.RepairManSerializer
 
 
 class CategoryViewSet(ModelViewSet):

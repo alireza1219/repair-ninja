@@ -43,6 +43,12 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'user_profile', 'phone']
 
 
+class CustomerUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['phone']
+
+
 class RepairManSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField()
     user_profile = UserProfileSerializer(source='user', read_only=True)
@@ -72,6 +78,12 @@ class RepairManSerializer(serializers.ModelSerializer):
     class Meta:
         model = RepairMan
         fields = ['id', 'user_id', 'user_profile', 'phone']
+
+
+class RepairManUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RepairMan
+        fields = ['phone']
 
 
 class CategorySerializer(serializers.ModelSerializer):
