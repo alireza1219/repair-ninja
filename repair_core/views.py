@@ -75,7 +75,7 @@ class CustomerViewSet(
         .all()
     search_fields = ['user__first_name',
                      'user__last_name', 'user__username', 'user__email', 'phone']
-    
+
     def get_serializer_class(self):
         if self.action == "partial_update":
             return serializers.CustomerUpdateSerializer
@@ -100,7 +100,7 @@ class RepairManViewSet(
         .all()
     search_fields = ['user__first_name',
                      'user__last_name', 'user__username', 'user__email', 'phone']
-    
+
     def get_serializer_class(self):
         if self.action == "partial_update":
             return serializers.RepairManUpdateSerializer
@@ -118,6 +118,17 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = serializers.CategorySerializer
     search_fields = ['title']
 
+    def destroy(self, request, *args, **kwargs):
+        # Check if there's an association between a service item and this category object.
+        if models.ServiceItem.objects.filter(category_id=kwargs['pk']).count() > 0:
+            return Response(
+                {
+                    'error': 'This category is associated with one or more items and it cannot be deleted.'
+                },
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        return super().destroy(request, *args, **kwargs)
+
 
 class ManufacturerViewSet(ModelViewSet):
     """
@@ -129,6 +140,17 @@ class ManufacturerViewSet(ModelViewSet):
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
     search_fields = ['name']
+
+    def destroy(self, request, *args, **kwargs):
+        # Check if there's an association between a service item and this manufacturer object.
+        if models.ServiceItem.objects.filter(manufacturer_id=kwargs['pk']).count() > 0:
+            return Response(
+                {
+                    'error': 'This manufacturer is associated with one or more items and it cannot be deleted.'
+                },
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        return super().destroy(request, *args, **kwargs)
 
 
 class ServiceViewSet(ModelViewSet):
