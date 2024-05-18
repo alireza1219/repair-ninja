@@ -1,6 +1,7 @@
 from django.db.models import Count
 from django.http import HttpRequest
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import mixins, permissions, status
 from rest_framework.response import Response
@@ -81,6 +82,20 @@ class CustomerViewSet(
             return serializers.CustomerUpdateSerializer
         return serializers.CustomerSerializer
 
+    @action(['post'], detail=False)
+    def phone_availability(self, request, *args, **kwargs):
+        phone = request.data.get('phone')
+        available = True
+        if phone:
+            available = not models.Customer.objects.filter(
+                phone=phone).exists()
+        else:
+            # Field cannot be empty.
+            available = False
+        if available:
+            return Response(status=status.HTTP_200_OK)
+        return Response({'phone': 'This phone number cannot be used.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RepairManViewSet(
         mixins.RetrieveModelMixin,
@@ -105,6 +120,19 @@ class RepairManViewSet(
         if self.action == "partial_update":
             return serializers.RepairManUpdateSerializer
         return serializers.RepairManSerializer
+
+    @action(['post'], detail=False)
+    def phone_availability(self, request, *args, **kwargs):
+        phone = request.data.get('phone')
+        available = True
+        if phone:
+            available = not models.RepairMan.objects.filter(
+                phone=phone).exists()
+        else:
+            available = False
+        if available:
+            return Response(status=status.HTTP_200_OK)
+        return Response({'phone': 'This phone number cannot be used.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(ModelViewSet):
