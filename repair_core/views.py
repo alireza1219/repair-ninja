@@ -61,7 +61,6 @@ class CustomerViewSet(
         mixins.RetrieveModelMixin,
         mixins.ListModelMixin,
         mixins.CreateModelMixin,
-        mixins.DestroyModelMixin,
         GenericViewSet):
     """
     An API endpoint for managing customers.
@@ -76,24 +75,11 @@ class CustomerViewSet(
     search_fields = ['user__first_name',
                      'user__last_name', 'user__username', 'user__email', 'phone']
 
-    def destroy(self, request, *args, **kwargs):
-        # Check if there's an association between a service and this customer object.
-        if models.Service.objects.filter(customer_id=kwargs['pk']).count() > 0:
-            return Response(
-                {
-                    'error': 'This customer is associated with one or more services and it cannot be deleted.'
-                },
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-
-        return super().destroy(request, *args, **kwargs)
-
 
 class RepairManViewSet(
         mixins.RetrieveModelMixin,
         mixins.ListModelMixin,
         mixins.CreateModelMixin,
-        mixins.DestroyModelMixin,
         GenericViewSet):
     """
     An API endpoint for managing repairmen.

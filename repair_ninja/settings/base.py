@@ -137,6 +137,7 @@ SIMPLE_JWT = {
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'repair_ninja.serializers.UserCreateSerializer',
+        'user_delete': 'repair_ninja.serializers.UserDeleteSerializer',
         'user': 'repair_ninja.serializers.UserSerializer',
         'current_user': 'repair_ninja.serializers.UserProfileSerializer',
     },

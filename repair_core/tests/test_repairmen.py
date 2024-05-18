@@ -67,14 +67,6 @@ def fixture_retrieve_repairman(api_client):
     return _retrieve_repairman
 
 
-@pytest.fixture(name='delete_repairman')
-def fixture_delete_repairman(api_client):
-    """Perform HTTP DELETE request on /core/repairmen/{repairman_id}/ endpoint."""
-    def _delete_repairman(repairman_id: int):
-        return api_client.delete(f"/core/repairmen/{repairman_id}/")
-    return _delete_repairman
-
-
 @pytest.mark.django_db
 class TestRepairManSignals:
     """Test the signals associated to a RepairMan model."""
@@ -220,56 +212,6 @@ class TestRetrieveRepairMan:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, \
             'Assert that a superuser cannot retrieve an invalid repairman'
-
-
-@pytest.mark.django_db
-class TestDeleteRepairMan:
-    """Test the /core/repairmen/{repairman_id} API endpoint deleting functionality."""
-
-    def test_if_anonymous_user_delete_returns_401(self, create_repairman_instance, delete_repairman):
-        """Test if anonymous user delete returns a 401 status"""
-        repairman = create_repairman_instance()
-
-        response = delete_repairman(repairman_id=repairman.id)
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED, \
-            'Assert that an anonymous user cannot delete a repairman'
-
-    def test_if_authenticated_user_delete_returns_403(self, create_repairman_instance,
-                                                      authenticate, delete_repairman):
-        """Test if authenticated user delete returns a 403 status"""
-        authenticate()
-        repairman = create_repairman_instance()
-
-        response = delete_repairman(repairman_id=repairman.id)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN, \
-            'Assert that an authenticated user cannot delete a repairman'
-
-    def test_if_staff_user_delete_returns_403(self, create_repairman_instance,
-                                              authenticate, delete_repairman):
-        """Test if staff user delete returns a 403 status"""
-        authenticate(
-            is_staff=True,
-            permissions=REPAIRMAN_DEFAULT_PERMISSIONS
-        )
-        repairman = create_repairman_instance()
-
-        response = delete_repairman(repairman_id=repairman.id)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN, \
-            'Assert that an authenticated staff user cannot delete a repairman'
-
-    def test_if_superuser_delete_returns_204(self, create_repairman_instance,
-                                             authenticate, delete_repairman):
-        """Test if superuser delete returns a 204 status"""
-        authenticate(is_superuser=True)
-        repairman = create_repairman_instance()
-
-        response = delete_repairman(repairman_id=repairman.id)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT, \
-            'Assert that a superuser can delete a specific repairman'
 
 
 @pytest.mark.django_db

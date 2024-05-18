@@ -3,6 +3,8 @@ from djoser.serializers import UserSerializer as BaseUserSerializer
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from rest_framework import serializers
 
+from repair_core.models import Customer, RepairMan, Service
+
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     email = serializers.EmailField(required=True)
@@ -73,3 +75,43 @@ class UserProfileSerializer(UserSerializer):
             lambda x: x.startswith('repair_core'), all_permissions)
         user_permissions = obj.get_all_permissions()
         return {p: p in user_permissions for p in repair_core_permissions}
+
+
+class UserDeleteSerializer(serializers.Serializer):
+    """
+    It wasn't possible to override Djoser's view classes in the settings.
+    Instead, we can use this delete serializer to raise a validation error
+    in cases where user is associated with one or more services.
+    """
+    confirm = serializers.CharField(required=True, max_length=255)
+
+    def validate_confirm(self, value):
+        """
+        Confirm the deletion request by manually typing the instance's username
+        """
+        instance = self.instance
+        if value != instance.username:
+            raise serializers.ValidationError("Username does not match!")
+
+        return value
+
+    def validate(self, attrs):
+        instance = self.instance
+        error_message = {
+            "integrity": "This User is associated with one or more services and it cannot be deleted."
+        }
+        # First check if this user is associated with a customer profile
+        if Customer.objects.filter(user_id=instance.pk).exists():
+            customer = Customer.objects.get(user_id=instance.pk)
+            if Service.objects.filter(customer=customer).count() > 0:
+                raise serializers.ValidationError(error_message)
+
+        # Otherwise, check if this user is associated with a repairman profile
+        # (A Little Note: Repairmen have a many-to-many relation with the service model,
+        # and it's possible to delete them without an integrity check)
+        elif RepairMan.objects.filter(user_id=instance.pk).exists():
+            repairman = RepairMan.objects.get(user_id=instance.pk)
+            if Service.objects.filter(assigned_to=repairman).count() > 0:
+                raise serializers.ValidationError(error_message)
+
+        return super().validate(attrs)
