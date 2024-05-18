@@ -26,11 +26,9 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 class UserSerializer(BaseUserSerializer):
     email = serializers.EmailField(required=True)
-    type = serializers.SerializerMethodField(read_only=True)
 
     class Meta(BaseUserSerializer.Meta):
-        fields = ['id', 'username', 'email',
-                  'first_name', 'last_name', 'type']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
     def validate_email(self, value):
         """
@@ -50,22 +48,16 @@ class UserSerializer(BaseUserSerializer):
                 raise serializers.ValidationError(error_message)
         return value
 
-    def get_type(self, obj):
-        if obj.is_superuser:
-            return "superuser"
-        if obj.is_staff:
-            return "staff"
-        return "regular"
-
 
 class UserProfileSerializer(UserSerializer):
     """
     Djoser's /users/me/ Endpoint
     """
     permissions = serializers.SerializerMethodField(read_only=True)
+    type = serializers.SerializerMethodField(read_only=True)
 
     class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ['permissions']
+        fields = UserSerializer.Meta.fields + ['permissions', 'type']
 
     def get_permissions(self, obj):
         User = get_user_model()
@@ -75,6 +67,13 @@ class UserProfileSerializer(UserSerializer):
             lambda x: x.startswith('repair_core'), all_permissions)
         user_permissions = obj.get_all_permissions()
         return {p: p in user_permissions for p in repair_core_permissions}
+
+    def get_type(self, obj):
+        if obj.is_superuser:
+            return "superuser"
+        if obj.is_staff:
+            return "staff"
+        return "regular"
 
 
 class UserDeleteSerializer(serializers.Serializer):
