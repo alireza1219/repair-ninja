@@ -30,8 +30,6 @@ services:
   db:
     image: mysql:8.3.0
     restart: always
-    ports:
-      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     environment:
