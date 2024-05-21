@@ -19,6 +19,7 @@ services:
       - REPAIR_NINJA_DB_NAME=repair_ninja_dev
       - REPAIR_NINJA_DB_USER=root
       - REPAIR_NINJA_DB_PASSWORD=root
+      - REPAIR_NINJA_CORS_ALLOWED_ORIGINS=http://localhost:5173,https://restfox.dev
     depends_on:
       dev-db:
         condition: service_healthy

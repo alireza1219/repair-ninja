@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'corsheaders',
     'otp',
     'repair_core',
     'sms_message',
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -157,6 +159,12 @@ DJOSER = {
         'user_delete': ['repair_core.permissions.IsSuperUser'],
     },
 }
+
+# CORS headers settings
+# https://pypi.org/project/django-cors-headers
+
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = os.environ.get('REPAIR_NINJA_CORS_ALLOWED_ORIGINS', '').split(',')
 
 # SMS.ir settings
 SMS_ENABLED = bool(int(os.environ.get('REPAIR_NINJA_SMS_ENABLED', 0)))
