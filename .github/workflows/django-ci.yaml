@@ -95,6 +95,7 @@ jobs:
     steps:
       - name: Production Deployment
         uses: appleboy/ssh-action@v1.0.3
+        if: ${{ vars.DEPLOY != 'false' }}
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
